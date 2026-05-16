@@ -1,0 +1,356 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+using namespace std;
+
+class Book {
+private:
+    int bookID;
+    string title;
+    string author;
+    bool issued;
+
+public:
+    void addBook() {
+        cout << "Enter Book ID: ";
+        cin >> bookID;
+
+        cin.ignore();
+
+        cout << "Enter Book Title: ";
+        getline(cin, title);
+
+        cout << "Enter Author Name: ";
+        getline(cin, author);
+
+        issued = false;
+    }
+
+    void displayBook() {
+        cout << "\nBook ID      : " << bookID;
+        cout << "\nTitle        : " << title;
+        cout << "\nAuthor       : " << author;
+        cout << "\nStatus       : ";
+
+        if (issued)
+            cout << "Issued";
+        else
+            cout << "Available";
+
+        cout << endl;
+    }
+
+    int getBookID() {
+        return bookID;
+    }
+
+    string getTitle() {
+        return title;
+    }
+
+    string getAuthor() {
+        return author;
+    }
+
+    bool isIssued() {
+        return issued;
+    }
+
+    void issueBook() {
+        issued = true;
+    }
+
+    void returnBook() {
+        issued = false;
+    }
+
+    void writeToFile() {
+        ofstream file("library.txt", ios::app);
+
+        file << bookID << endl;
+        file << title << endl;
+        file << author << endl;
+        file << issued << endl;
+
+        file.close();
+    }
+
+    static void showAllBooks() {
+        ifstream file("library.txt");
+
+        int id;
+        string t, a;
+        bool status;
+
+        cout << "\n----- BOOK RECORDS -----\n";
+
+        while (file >> id) {
+            file.ignore();
+
+            getline(file, t);
+            getline(file, a);
+
+            file >> status;
+
+            cout << "\nBook ID   : " << id;
+            cout << "\nTitle     : " << t;
+            cout << "\nAuthor    : " << a;
+            cout << "\nStatus    : ";
+
+            if (status)
+                cout << "Issued";
+            else
+                cout << "Available";
+
+            cout << endl;
+        }
+
+        file.close();
+    }
+
+    static void issueBookByID(int searchID) {
+        ifstream file("library.txt");
+        ofstream temp("temp.txt");
+
+        int id;
+        string t, a;
+        bool status;
+        bool found = false;
+
+        while (file >> id) {
+            file.ignore();
+
+            getline(file, t);
+            getline(file, a);
+
+            file >> status;
+
+            if (id == searchID) {
+                found = true;
+
+                if (!status) {
+                    status = true;
+                    cout << "Book Issued Successfully.\n";
+                } else {
+                    cout << "Book Already Issued.\n";
+                }
+            }
+
+            temp << id << endl;
+            temp << t << endl;
+            temp << a << endl;
+            temp << status << endl;
+        }
+
+        file.close();
+        temp.close();
+
+        remove("library.txt");
+        rename("temp.txt", "library.txt");
+
+        if (!found)
+            cout << "Book Not Found.\n";
+    }
+
+    static void returnBookByID(int searchID) {
+        ifstream file("library.txt");
+        ofstream temp("temp.txt");
+
+        int id;
+        string t, a;
+        bool status;
+        bool found = false;
+
+        while (file >> id) {
+            file.ignore();
+
+            getline(file, t);
+            getline(file, a);
+
+            file >> status;
+
+            if (id == searchID) {
+                found = true;
+
+                if (status) {
+                    status = false;
+                    cout << "Book Returned Successfully.\n";
+                } else {
+                    cout << "Book Was Not Issued.\n";
+                }
+            }
+
+            temp << id << endl;
+            temp << t << endl;
+            temp << a << endl;
+            temp << status << endl;
+        }
+
+        file.close();
+        temp.close();
+
+        remove("library.txt");
+        rename("temp.txt", "library.txt");
+
+        if (!found)
+            cout << "Book Not Found.\n";
+    }
+
+    static void searchByTitle(string searchTitle) {
+        ifstream file("library.txt");
+
+        int id;
+        string t, a;
+        bool status;
+        bool found = false;
+
+        while (file >> id) {
+            file.ignore();
+
+            getline(file, t);
+            getline(file, a);
+
+            file >> status;
+
+            if (t == searchTitle) {
+                cout << "\nBook ID   : " << id;
+                cout << "\nTitle     : " << t;
+                cout << "\nAuthor    : " << a;
+                cout << "\nStatus    : ";
+
+                if (status)
+                    cout << "Issued";
+                else
+                    cout << "Available";
+
+                cout << endl;
+
+                found = true;
+            }
+        }
+
+        file.close();
+
+        if (!found)
+            cout << "Book Not Found.\n";
+    }
+
+    static void searchByAuthor(string searchAuthor) {
+        ifstream file("library.txt");
+
+        int id;
+        string t, a;
+        bool status;
+        bool found = false;
+
+        while (file >> id) {
+            file.ignore();
+
+            getline(file, t);
+            getline(file, a);
+
+            file >> status;
+
+            if (a == searchAuthor) {
+                cout << "\nBook ID   : " << id;
+                cout << "\nTitle     : " << t;
+                cout << "\nAuthor    : " << a;
+                cout << "\nStatus    : ";
+
+                if (status)
+                    cout << "Issued";
+                else
+                    cout << "Available";
+
+                cout << endl;
+
+                found = true;
+            }
+        }
+
+        file.close();
+
+        if (!found)
+            cout << "Author Not Found.\n";
+    }
+};
+
+int main() {
+    int choice;
+    Book book;
+
+    do {
+        cout << "\n===== LIBRARY MANAGEMENT SYSTEM =====\n";
+
+        cout << "1. Add Book\n";
+        cout << "2. Display All Books\n";
+        cout << "3. Issue Book\n";
+        cout << "4. Return Book\n";
+        cout << "5. Search By Title\n";
+        cout << "6. Search By Author\n";
+        cout << "7. Exit\n";
+
+        cout << "Enter Your Choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            book.addBook();
+            book.writeToFile();
+        }
+
+        else if (choice == 2) {
+            Book::showAllBooks();
+        }
+
+        else if (choice == 3) {
+            int id;
+
+            cout << "Enter Book ID: ";
+            cin >> id;
+
+            Book::issueBookByID(id);
+        }
+
+        else if (choice == 4) {
+            int id;
+
+            cout << "Enter Book ID: ";
+            cin >> id;
+
+            Book::returnBookByID(id);
+        }
+
+        else if (choice == 5) {
+            string title;
+
+            cin.ignore();
+
+            cout << "Enter Book Title: ";
+            getline(cin, title);
+
+            Book::searchByTitle(title);
+        }
+
+        else if (choice == 6) {
+            string author;
+
+            cin.ignore();
+
+            cout << "Enter Author Name: ";
+            getline(cin, author);
+
+            Book::searchByAuthor(author);
+        }
+
+        else if (choice == 7) {
+            cout << "Thank You.\n";
+        }
+
+        else {
+            cout << "Invalid Choice.\n";
+        }
+
+    } while (choice != 7);
+
+    return 0;
+}
